@@ -55,8 +55,11 @@ Q9. SELECT COUNT(CITY) - COUNT(DISTINCT CITY) FROM STATION;
 ________________
 
 
-Q10. SELECT CITY, LENGTH(CITY) FROM STATION ORDER BY LENGTH(CITY) ASC, CITY ASC LIMIT 1;
-SELECT CITY, LENGTH(CITY) FROM STATION ORDER BY LENGTH(CITY) DESC, CITY ASC LIMIT 1;
+Q10. (SELECT city, length(city) AS length from station ORDER BY length(city) ASC,city 
+ASC limit 1) 
+UNION 
+(SELECT city, length(city) AS length FROM station ORDER BY length(city) 
+DESC,city ASC limit 1);
 
 
 ________________
@@ -504,6 +507,12 @@ datediff(event_date, lead(event_date, 1) OVER(PARTITION BY player_id ORDER BY
 event_date)) AS diff
 FROM activity) t
 WHERE diff = -1;
+
+
+________________
+
+
+
 Q44. SELECT Manager.name
 FROM Employee
 INNER JOIN Employee AS Manager
