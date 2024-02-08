@@ -1,0 +1,612 @@
+﻿SQL Solutions
+
+
+Q1. SELECT * FROM CITY WHERE POPULATION>100000 AND COUNTRYCODE = ‘USA’;
+
+
+________________
+
+
+Q2. SELECT NAME FROM CITY WHERE POPULATION>120000 AND COUNTRYCODE = ‘USA’;
+
+
+________________
+
+
+Q3. SELECT * FROM CITY;
+
+
+________________
+
+
+Q4. SELECT * FROM CITY WHERE ID=1661;
+
+
+________________
+
+
+Q5. SELECT * FROM CITY WHERE COUNTRYCODE='JPN';
+
+
+________________
+
+
+Q6. SELECT NAME FROM CITY WHERE COUNTRYCODE='JPN';
+
+
+________________
+
+
+Q7. SELECT CITY, STATE FROM STATION;
+
+
+________________
+
+
+Q8. SELECT DISTINCT CITY FROM STATION WHERE ID%2=0;
+
+
+________________
+
+
+Q9. SELECT COUNT(CITY) - COUNT(DISTINCT CITY) FROM STATION;
+
+
+________________
+
+
+Q10. SELECT CITY, LENGTH(CITY) FROM STATION ORDER BY LENGTH(CITY) ASC, CITY ASC LIMIT 1;
+SELECT CITY, LENGTH(CITY) FROM STATION ORDER BY LENGTH(CITY) DESC, CITY ASC LIMIT 1;
+
+
+________________
+
+
+Q11. SELECT DISTINCT CITY FROM STATION WHERE LEFT(CITY,1) IN('A','E','I','O','U');
+
+
+________________
+
+
+Q12. SELECT DISTINCT CITY FROM STATION WHERE RIGHT(CITY,1) IN('A','E','I','O','U');
+
+
+________________
+
+
+Q13. SELECT DISTINCT CITY FROM STATION WHERE LEFT(CITY,1) NOT IN('A','E','I','O','U');
+
+
+________________
+
+
+Q14. SELECT DISTINCT CITY FROM STATION WHERE RIGHT(CITY,1) NOT IN('A','E','I','O','U');
+
+
+________________
+
+
+Q15. SELECT DISTINCT CITY FROM STATION WHERE LEFT(CITY,1) NOT IN('A','E','I','O','U') OR RIGHT(CITY,1) NOT IN('A','E','I','O','U');
+
+
+________________
+
+
+Q16. SELECT DISTINCT CITY FROM STATION WHERE LEFT(CITY,1) NOT IN('A','E','I','O','U') AND RIGHT(CITY,1) NOT IN('A','E','I','O','U');
+
+
+________________
+
+
+
+Q17. SELECT
+  Product.product_id,
+  Product.product_name
+FROM Product
+INNER JOIN Sales
+  USING (product_id)
+GROUP BY 1, 2
+HAVING SUM(
+    Sales.sale_date < '2019-01-01'
+    OR Sales.sale_date > '2019-03-31'
+  ) = 0;
+
+
+________________
+
+
+
+
+Q18. SELECT DISTINCT author_id AS id
+FROM Views
+WHERE author_id = viewer_id
+ORDER BY 1;
+
+
+________________
+
+
+
+
+Q19. SELECT
+  ROUND(
+    100 * AVG(order_date = customer_pref_delivery_date),
+    2
+  ) AS immediate_percentage
+FROM Delivery;
+
+
+________________
+
+
+
+Q20. SELECT
+  ad_id,
+  IFNULL(
+        ROUND(
+          SUM(action = 'Clicked') * 100 /(SUM(action = 'Clicked') + SUM(action = 'Viewed')),
+          2
+        ),
+        0
+  ) AS ctr
+FROM Ads
+GROUP BY 1
+ORDER BY ctr DESC, ad_id;
+
+
+________________
+
+
+
+
+Q21. SELECT
+  employee_id,
+  COUNT(*) OVER(PARTITION BY team_id) AS team_size
+FROM Employee;
+
+
+________________
+
+
+
+
+Q22. SELECT
+  country_name,
+  (
+        CASE
+          WHEN AVG(Weather.weather_state * 1.0) <= 15.0 THEN 'Cold'
+          WHEN AVG(Weather.weather_state * 1.0) >= 25.0 THEN 'Hot'
+          ELSE 'Warm'
+        END
+  ) AS weather_type
+FROM Countries
+INNER JOIN Weather
+  USING (country_id)
+WHERE day BETWEEN '2019-11-01' AND '2019-11-30'
+GROUP BY 1;
+
+
+________________
+
+
+
+
+Q23. SELECT
+  Prices.product_id,
+  IFNULL(
+        ROUND(
+          SUM(Prices.price * UnitsSold.units) / SUM(UnitsSold.units),
+          2
+        ),
+        0
+  ) AS average_price
+FROM Prices
+LEFT JOIN UnitsSold
+  ON (
+        Prices.product_id = UnitsSold.product_id
+        AND UnitsSold.purchase_date BETWEEN Prices.start_date AND Prices.end_date)
+GROUP BY 1;
+
+
+
+________________
+
+
+
+
+Q24. SELECT player_id, MIN(event_date) AS first_login
+FROM Activity
+GROUP BY 1;
+
+
+________________
+
+
+
+
+Q25. SELECT DISTINCT
+  player_id,
+  FIRST_VALUE(device_id) OVER(
+        PARTITION by player_id
+        ORDER BY event_date
+  ) AS device_id
+FROM Activity;
+
+
+________________
+
+
+
+
+Q26. SELECT
+  Products.product_name,
+  SUM(Orders.unit) AS unit
+FROM Products
+INNER JOIN Orders
+  USING (product_id)
+WHERE DATE_FORMAT(Orders.order_date, '%Y-%m') = '2020-02'
+GROUP BY product_id
+HAVING SUM(Orders.unit) >= 100;
+
+
+
+________________
+
+
+
+
+Q27. SELECT user_id, name, mail
+FROM Users
+WHERE REGEXP_LIKE(mail, '^[A-Za-z]+[A-Za-z0-9\_\.\-]*@leetcode\\.com$')
+ORDER BY user_id;
+
+
+
+________________
+
+
+
+
+Q28. SELECT
+  Customers.customer_id,
+  Customers.name
+FROM Customers
+INNER JOIN Orders
+  USING (customer_id)
+INNER JOIN Product
+  USING (product_id)
+GROUP BY 1
+HAVING
+  SUM(
+        IF(
+          DATE_FORMAT(Orders.order_date, '%Y-%m') = '2020-06',
+          Orders.quantity * price,
+          0
+        )
+  ) >= 100
+  AND SUM(
+        IF(
+          DATE_FORMAT(Orders.order_date, '%Y-%m') = '2020-07',
+          Orders.quantity * price,
+          0
+        )
+  ) >= 100;
+
+
+
+________________
+
+
+
+
+Q29. SELECT DISTINCT Content.title
+FROM Content
+INNER JOIN TVProgram
+  USING (content_id)
+WHERE
+  Content.kids_content = 'Y'
+  AND Content.content_type = 'Movies'
+  AND DATE_FORMAT(TVProgram.program_date, '%Y-%m') = '2020-06';
+
+
+
+________________
+
+
+
+Q30. SELECT q.*, coalesce(n.Npv,0) as Npv 
+FROM Queries q
+LEFT JOIN NPV n on q.Id = n.Id and q.Year = n.Year;
+
+
+________________
+
+
+
+
+Q31. SELECT q.*, coalesce(n.Npv,0) as Npv 
+FROM Queries q
+LEFT JOIN NPV n on q.Id = n.Id and q.Year = n.Year;
+
+
+________________
+
+
+
+
+Q32. SELECT
+  EmployeeUNI.unique_id,
+  Employees.name
+FROM Employees
+LEFT JOIN EmployeeUNI
+  USING (id);
+
+
+________________
+
+
+
+
+Q33. SELECT
+  Users.name,
+  IFNULL(SUM(Rides.distance), 0) AS travelled_distance
+FROM Users
+LEFT JOIN Rides
+  ON (Users.id = Rides.user_id)
+GROUP BY Users.id
+ORDER BY 2 DESC, 1;
+
+
+________________
+
+
+
+Q34. SELECT
+  Products.product_name,
+  SUM(Orders.unit) AS unit
+FROM Products
+INNER JOIN Orders
+  USING (product_id)
+WHERE DATE_FORMAT(Orders.order_date, '%Y-%m') = '2020-02'
+GROUP BY product_id
+HAVING SUM(Orders.unit) >= 100;
+
+
+________________
+
+
+
+Q35. (
+  SELECT Users.name AS results
+  FROM MovieRating
+  INNER JOIN Users
+        USING (user_id)
+  GROUP BY user_id
+  ORDER BY COUNT(MovieRating.movie_id) DESC, Users.name
+  LIMIT 1
+)
+UNION ALL
+(
+  SELECT Movies.title AS results
+  FROM MovieRating
+  INNER JOIN Movies
+        USING (movie_id)
+  WHERE DATE_FORMAT(created_at, '%Y-%m') = '2020-02'
+  GROUP BY movie_id
+  ORDER BY AVG(MovieRating.rating) DESC, Movies.title
+  LIMIT 1
+);
+
+
+________________
+
+
+
+Q36. SELECT
+  Users.name,
+  IFNULL(SUM(Rides.distance), 0) AS travelled_distance
+FROM Users
+LEFT JOIN Rides
+  ON (Users.id = Rides.user_id)
+GROUP BY Users.id
+ORDER BY 2 DESC, 1;
+
+
+________________
+
+
+
+Q37. SELECT
+  EmployeeUNI.unique_id,
+  Employees.name
+FROM Employees
+LEFT JOIN EmployeeUNI
+  USING (id);
+
+
+________________
+
+
+
+Q38. SELECT
+  Students.id,
+  Students.name
+FROM Students
+LEFT JOIN Departments
+  ON (Students.department_id = Departments.id)
+WHERE Departments.id IS NULL;
+
+
+________________
+
+
+
+Q39. SELECT
+  LEAST(from_id, to_id) AS person1,
+  GREATEST(from_id, to_id) AS person2,
+  COUNT(*) AS call_count,
+  SUM(duration) AS total_duration
+FROM Calls
+GROUP BY 1, 2;
+
+
+________________
+
+
+
+Q40. SELECT p.product_id, round(sum(u.units*p.price)/sum(u.units),2) AS average_price
+FROM prices p 
+LEFT JOIN UnitsSold u 
+ON p.product_id = u.product_id 
+WHERE u.purchase_date >= start_date and u.purchase_date <= end_date
+GROUP BY product_id 
+ORDER BY product_id;
+
+
+________________
+
+
+
+
+Q41. SELECT
+  Warehouse.name AS warehouse_name,
+  SUM(
+        Warehouse.units * Products.width * Products.length * Products.height
+  ) AS volume
+FROM Warehouse
+INNER JOIN Products
+  USING (product_id)
+GROUP BY 1;
+
+
+________________
+
+
+
+
+Q42. SELECT
+  sale_date,
+  SUM(IF(fruit = 'apples', sold_num, -sold_num)) AS diff
+FROM Sales
+GROUP BY 1;
+
+
+________________
+
+
+
+
+Q43. Select round(t.player_id/(SELECT COUNT(distinct player_id) from activity),2) AS fraction
+FROM 
+(
+SELECT DISTINCT player_id,
+datediff(event_date, lead(event_date, 1) OVER(PARTITION BY player_id ORDER BY
+event_date)) AS diff
+FROM activity) t
+WHERE diff = -1;
+Q44. SELECT Manager.name
+FROM Employee
+INNER JOIN Employee AS Manager
+  ON (Employee.managerId = Manager.id)
+GROUP BY Manager.id
+HAVING COUNT(*) >= 5;
+
+
+________________
+
+
+
+
+Q45. SELECT
+  Department.dept_name,
+  COUNT(Student.student_id) AS student_number
+FROM Department
+LEFT JOIN Student
+  USING (dept_id)
+GROUP BY 1
+ORDER BY 2 DESC, 1;
+
+
+________________
+
+
+
+Q46. SELECT customer_id
+FROM Customer
+GROUP BY 1
+HAVING COUNT(DISTINCT product_key) = (
+        SELECT COUNT(*) FROM Product
+  );
+
+
+________________
+
+
+
+Q47. WITH
+  RankedProjectToEmployee AS (
+        SELECT
+          Project.project_id,
+          Project.employee_id,
+          RANK() OVER(
+            PARTITION BY Project.project_id
+            ORDER BY Employee.experience_years DESC
+          ) AS `rank`
+        FROM Project
+        INNER JOIN Employee
+          USING (employee_id)
+  )
+SELECT project_id, employee_id
+FROM RankedProjectToEmployee
+WHERE `rank` = 1;
+
+
+________________
+
+
+
+Q48. SELECT
+  Books.book_id,
+  ANY_VALUE(Books.name) AS name
+FROM Books
+LEFT JOIN Orders
+  ON (Books.book_id = Orders.book_id
+        AND Orders.dispatch_date BETWEEN '2018-06-23' AND '2019-06-23')
+WHERE DATEDIFF('2019-06-23', Books.available_from) > 30
+GROUP BY 1
+HAVING IFNULL(SUM(Orders.quantity), 0) < 10;
+
+
+________________
+
+
+
+Q49. SELECT t.student_id, t.course_id, t.grade
+FROM (SELECT student_id, course_id, grade, dense_rank() OVER(PARTITION BY student_id ORDER BY grade desc, course_id)
+AS r from enrollments) t
+WHERE r = 1
+ORDER BY t.student_id;
+
+
+________________
+
+
+
+
+Q50. SELECT t2.group_id, t2.player_id
+FROM
+(
+    SELECT t1.group_id, t1.player_id,
+dense_rank() OVER(PARTITION BY group_id ORDER BY score DESC, player_id) AS r
+FROM
+(
+    SELECT p.*, CASE WHEN p.player_id = m.first_player THEN m.first_score WHEN p.player_id = m.second_player THEN m.second_score
+END AS score
+FROM Players p, Matches m
+WHERE player_id IN (first_player, second_player)
+    ) t1
+) t2
+WHERE r = 1;
+
+
+________________
